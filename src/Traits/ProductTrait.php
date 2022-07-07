@@ -83,12 +83,14 @@ trait ProductTrait
             $item_size = 'ONE SIZE';
 
             foreach ($options as $option) {
-                if (strtolower($option['name']) === 'color') {
-                    $item_color = $option['value'];
-                }
+                if (is_array($option)) {
+                    if (strtolower($option['name']) === 'color') {
+                        $item_color = $option['value'];
+                    }
 
-                if (strtolower($option['name']) === 'size') {
-                    $item_size = $option['value'];
+                    if (strtolower($option['name']) === 'size') {
+                        $item_size = $option['value'];
+                    }
                 }
             }
 
