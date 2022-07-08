@@ -69,8 +69,8 @@ class PriceSetHandler extends FavinitApiBase
         return true;
     }
 
-    public function updated(PriceSet $priceSet): void
+    public function updated(PriceSet $priceSet): bool
     {
-        $this->created($priceSet);
+        return $this->created($priceSet);
     }
 }

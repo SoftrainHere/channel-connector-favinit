@@ -22,7 +22,7 @@ trait PriceSetTrait
         if ($priceSet->override instanceof Override) {
             $priceSetOverride = json_decode($priceSet->override->fields_overrided);
         }
-        $this->payload = [];
+        $this->payload = [ 'input' => [] ];
         $this->payload['input']['vendor_id'] = ChannelConnectorFacade::configuration()->meta->vendor_id;
 
         $this->payload['input']['prodinc'] = (string)$priceSet->product->id;
@@ -31,6 +31,14 @@ trait PriceSetTrait
         $this->payload['input']['supplyprice'] = (string)$priceSet->final_supply_price;
         $this->payload['input']['saleprice'] = (string)($priceSetOverride->sales_price ?? $priceSet->sales_price);
         $this->payload['input']['customerprice'] = (string)($priceSetOverride->msrp ?? $priceSet->msrp);
+
+        if(empty($priceSet->product->categories[0])) {
+            $error_namespace = 'mxncommerce.channel-connector::channel_connector.errors.no_category_in_product';
+            $error = trans($error_namespace, [
+                'product_id' => $priceSet->product->id,
+            ]);
+            throw new WrongPayloadException($error, Response::HTTP_BAD_REQUEST);
+        }
 
         if(empty($priceSet->product->categories[0]->channelCategories[0]->code)) {
             $error_namespace = 'mxncommerce.channel-connector::channel_connector.errors.no_category_id_mapped_exist';

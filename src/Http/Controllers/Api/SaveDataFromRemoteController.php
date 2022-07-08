@@ -28,7 +28,7 @@ class SaveDataFromRemoteController extends Controller
             "payload" => $request->toArray(),
         ];
 
-        if (config('app.debug') && config('app.env') !== Str::lower('production')) {
+        if (config('app.debug') && in_array(Str::lower(config('app.env')), ['production', 'scheduler'])) {
             Log::info($value[0] . ' -> ' . $value[1]);
             Log::info(json_encode($request->toArray()));
         }

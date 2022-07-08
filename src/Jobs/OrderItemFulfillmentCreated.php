@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Mxncommerce\ChannelConnector\Handler\ToChannel\OrderItemFulfillmentHandler;
 
 /*
 |---------------------------------------------------------------------
@@ -32,11 +33,10 @@ class OrderItemFulfillmentCreated implements ShouldQueue
     | https://laravel.com/docs/9.x/queues
     |
     */
-    public bool $failOnTimeout = true;
     public int $maxExceptions = 3;
     public int $timeout = 60;
     public int $tries = 3;
-    public array|int $backoff = [60, 120];
+    public array|int $backoff = [300, 600];
 
     private ?OrderItemFulfillment $orderItemFulfillment;
 
@@ -47,7 +47,7 @@ class OrderItemFulfillmentCreated implements ShouldQueue
      */
     public function __construct(OrderItemFulfillment $orderItemFulfillment)
     {
-        $this->onQueue(config('queue.connections.redis.queue_to_remote'));
+        $this->onQueue(config('queue.connections.database.queue_to_remote'));
         $this->orderItemFulfillment = $orderItemFulfillment;
     }
 
@@ -59,5 +59,6 @@ class OrderItemFulfillmentCreated implements ShouldQueue
         /**
          * This hook is a point right after order-fulfillment create from cc
          */
+        app(OrderItemFulfillmentHandler::class)->created($this->orderItemFulfillment);
     }
 }

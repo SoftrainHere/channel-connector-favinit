@@ -10,7 +10,6 @@ use App\Models\Features\OrderItemFulfillment;
 use Mxncommerce\ChannelConnector\Handler\FavinitApiBase;
 use Mxncommerce\ChannelConnector\Traits\OrderItemFulfillmentTrait;
 use Mxncommerce\ChannelConnector\Traits\SetOverrideDataFromRemote;
-use Throwable;
 
 class OrderItemFulfillmentHandler extends FavinitApiBase
 {
@@ -31,7 +30,8 @@ class OrderItemFulfillmentHandler extends FavinitApiBase
             $orderItemFulfillment->tracking_company &&
             $orderItemFulfillment->tracking_number
         ) {
-            $res = $this->buildCreatePayload($orderItemFulfillment)->requestMutation(config('channel_connector_for_remote.api_order_status'));
+            $this->buildCreatePayload($orderItemFulfillment)
+                ->requestMutation(config('channel_connector_for_remote.api_order_status'));
         }
 
         return true;
@@ -45,14 +45,14 @@ class OrderItemFulfillmentHandler extends FavinitApiBase
     public function updated(OrderItemFulfillment $orderItemFulfillment): bool
     {
         ChannelConnectorFacade::echoDev(__CLASS__ . '->' .  __FUNCTION__);
-        $res = [];
 
         if (
             $orderItemFulfillment->status === OrderItemFulfillmentStatusType::Success->value &&
             $orderItemFulfillment->tracking_company &&
             $orderItemFulfillment->tracking_number
         ) {
-            $res = $this->buildCreatePayload($orderItemFulfillment)->requestMutation(config('channel_connector_for_remote.api_order_status'));
+            $this->buildCreatePayload($orderItemFulfillment)
+                ->requestMutation(config('channel_connector_for_remote.api_order_status'));
         }
 
         return true;
@@ -60,8 +60,7 @@ class OrderItemFulfillmentHandler extends FavinitApiBase
 
     /**
      * @param OrderItemFulfillment $orderItemFulfillment
-     * @return array
-     * @throws Throwable
+     * @return bool
      */
     public function cancelled(OrderItemFulfillment $orderItemFulfillment): bool
     {
@@ -71,7 +70,8 @@ class OrderItemFulfillmentHandler extends FavinitApiBase
             $orderItemFulfillment->tracking_company &&
             $orderItemFulfillment->tracking_number
         ) {
-//            $res = $this->buildCreatePayload($orderItemFulfillment)->requestMutation(config('channel_connector_for_remote.api_order_status'));
+//            $this->buildCreatePayload($orderItemFulfillment)
+//                ->requestMutation(config('channel_connector_for_remote.api_order_status'));
         }
         return true;
     }

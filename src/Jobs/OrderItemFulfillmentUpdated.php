@@ -54,7 +54,7 @@ class OrderItemFulfillmentUpdated implements ShouldQueue
      */
     public function __construct(OrderItemFulfillment $orderItemFulfillment, ?string $fulfillmentStatus = null)
     {
-        $this->onQueue(config('queue.connections.redis.queue_to_remote'));
+        $this->onQueue(config('queue.connections.database.queue_to_remote'));
         $this->fulfillmentStatus = $fulfillmentStatus;
         $this->orderItemFulfillment = $orderItemFulfillment;
     }

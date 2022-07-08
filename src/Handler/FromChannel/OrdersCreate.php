@@ -41,7 +41,7 @@ class OrdersCreate
 
         $orderPayload = [];
         if (empty($payload['customer'])) {
-            if (App::environment() !== Str::lower('production')) {
+            if (!in_array(Str::lower(config('app.env')), ['production', 'scheduler'])) {
                 echo 'No customer information for order ' . $payload['id'] . PHP_EOL;
             } else {
                 Log::info('No customer information for order ' . $payload['id']);

@@ -41,7 +41,7 @@ class GetOrderFulfillment implements ShouldQueue
      */
     public function __construct(Order $order)
     {
-        $this->onQueue(config('queue.connections.redis.queue_to_remote'));
+        $this->onQueue(config('queue.connections.database.queue_to_remote'));
         $this->order = $order;
     }
 

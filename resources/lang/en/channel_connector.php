@@ -13,5 +13,7 @@ return [
         'price_set_update' => 'Price-set update error for Vendor(:vendor_id) / Product(:product_id)',
         'inventory_set_update' => 'Inventory-set update error for Vendor(:vendor_id) / Product(:product_id)',
         'no_category_id_mapped_exist' => 'No category-id mapped exists for category(:category_id) of product(:product_id)',
+        'no_category_in_product' => 'Product(:product_id) does not have default category',
+        'no_medium_in_product' => 'Product(:product_id) does not have default medium',
     ],
 ];

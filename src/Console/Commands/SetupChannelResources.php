@@ -2,6 +2,7 @@
 
 namespace Mxncommerce\ChannelConnector\Console\Commands;
 
+use App\Models\ChannelCategory;
 use Illuminate\Console\Command;
 
 class SetupChannelResources extends Command
@@ -32,7 +33,14 @@ class SetupChannelResources extends Command
 
     public function handle(): void
     {
-//        $configuration->meta = json_encode($meta);
-//        $configuration->save();
+        $categoriesFromChannel = config('channel_connector_for_remote.channel_categories');
+        foreach ($categoriesFromChannel as $key => $item) {
+            $resource = explode('|', $item);
+            ChannelCategory::updateOrCreate(['code' => $key], [
+                'large_category' => $resource[0] ,
+                'medium_category' => $resource[1] ?? null ,
+                'small_category' => $resource[2] ?? null ,
+            ]);
+        }
     }
 }

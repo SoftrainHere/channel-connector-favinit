@@ -79,6 +79,7 @@ class ProductHandler extends FavinitApiBase
      * @param Product $product
      * @return bool
      * @throws SaveToCentralException
+     * @throws Throwable
      */
     public function updated(Product $product): bool
     {
