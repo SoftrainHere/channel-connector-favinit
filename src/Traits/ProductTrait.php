@@ -2,10 +2,13 @@
 
 namespace Mxncommerce\ChannelConnector\Traits;
 
+use App\Exceptions\Api\ProductWithoutCategoryException;
 use App\Exceptions\Api\WrongPayloadException;
 use App\Helpers\ChannelConnectorFacade;
+use App\Models\Features\ConfigurationValue;
 use App\Models\Features\Product;
 use App\Models\Override;
+use App\Models\ResyncWaitingProduct;
 use Mxncommerce\ChannelConnector\Helpers\ChannelConnectorHelper;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -27,7 +30,8 @@ trait ProductTrait
         }
         $this->payload = [];
 
-        $this->payload['input']['vendor_id'] = ChannelConnectorFacade::configuration()->meta->vendor_id;
+        //$this->payload['input']['vendor_id'] = ChannelConnectorFacade::configuration()->meta->vendor_id;
+        $this->payload['input']['vendor_id'] = ConfigurationValue::getValue('meta_vendor_id');
 
         $this->payload['input']['prodinc'] = (string)$product->id;
         $this->payload['input']['modelcode'] = $product->variants[0]->mpn;
@@ -41,16 +45,21 @@ trait ProductTrait
 
         $this->payload['input']['shortage_yn'] = $this->convertProductStatus($product->status);
 
-//        if(empty($product->categories[0])) {
+        $behaviorForProductWithoutCategory =
+            ConfigurationValue::getValue('behavior_for_product_without_category');
+
         if(!$product->representative_category) {
-            $error_namespace = 'mxncommerce.channel-connector::channel_connector.errors.no_category_in_product';
-            $error = trans($error_namespace, [
-                'product_id' => $product->id,
-            ]);
-            throw new WrongPayloadException($error, Response::HTTP_BAD_REQUEST);
+            if ($behaviorForProductWithoutCategory === 'SAVE_FOR_RETRY') {
+                throw new ProductWithoutCategoryException(null);
+            } else {
+                $error_namespace = 'mxncommerce.channel-connector::channel_connector.errors.no_category_in_product';
+                $error = trans($error_namespace, [
+                    'product_id' => $product->id,
+                ]);
+                throw new WrongPayloadException($error, Response::HTTP_BAD_REQUEST);
+            }
         }
 
-//        if(empty($product->categories[0]->channelCategories[0]->code)) {
         if(empty($product->representative_category->channelCategories[0]->code)) {
             $error_namespace = 'mxncommerce.channel-connector::channel_connector.errors.no_category_id_mapped_exist';
             $error = trans($error_namespace, [

@@ -2,11 +2,13 @@
 
 namespace Mxncommerce\ChannelConnector\Handler\ToChannel;
 
+use App\Exceptions\Api\ProductWithoutCategoryException;
 use App\Exceptions\Api\SaveToCentralException;
 use App\Helpers\ChannelConnectorFacade;
 use App\Libraries\Dynamo\SendExceptionToCentralLog;
 use App\Models\Features\Brand;
 use App\Models\Features\Product;
+use App\Models\ResyncWaitingProduct;
 use App\Traits\WaitUntil;
 use Exception;
 use Mxncommerce\ChannelConnector\Handler\FavinitApiBase;
@@ -44,10 +46,10 @@ class ProductHandler extends FavinitApiBase
             return false;
         }
 
-        $res = $this->buildCreatePayload($product)
-            ->requestMutation(config('channel_connector_for_remote.api_create_product'));
-
         try {
+            $res = $this->buildCreatePayload($product)
+                ->requestMutation(config('channel_connector_for_remote.api_create_product'));
+
             $response = json_decode($res->getData());
             if ($response->result != '01') {
                 app(SendExceptionToCentralLog::class)(
@@ -65,10 +67,14 @@ class ProductHandler extends FavinitApiBase
             ];
 
             $this->setOverrideDataFromRemote($product, $payloadFromRemote);
-        } catch (Exception $exception) {
+        } catch (ProductWithoutCategoryException $e) {
+            $resyncWaitingProduct = new ResyncWaitingProduct();
+            $resyncWaitingProduct->product_id = $product->id;
+            $resyncWaitingProduct->save();
+        } catch (Exception $e) {
             app(SendExceptionToCentralLog::class)(
-                ['Favinit product sync error', $exception->getMessage()],
-                $exception->getCode()
+                ['Favinit product sync error', $e->getMessage()],
+                $e->getCode()
             );
         }
 
