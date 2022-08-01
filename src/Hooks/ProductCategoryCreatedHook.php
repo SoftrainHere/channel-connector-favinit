@@ -60,6 +60,6 @@ class ProductCategoryCreatedHook {
             return;
         }
 
-        SendModelChangeToRemote::dispatch('Product', __FUNCTION__, $product);
+        SendModelChangeToRemote::dispatch('Product', 'created', $product);
     }
 }
